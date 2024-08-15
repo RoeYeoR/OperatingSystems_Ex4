@@ -1,0 +1,73 @@
+==20207== Memcheck, a memory error detector
+==20207== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==20207== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==20207== Command: ./hello
+==20207== Parent PID: 5507
+==20207== 
+==20207== Conditional jump or move depends on uninitialised value(s)
+==20207==    at 0x109234: main (hello.c:10)
+==20207== 
+==20207== 
+==20207== HEAP SUMMARY:
+==20207==     in use at exit: 9 bytes in 1 blocks
+==20207==   total heap usage: 2 allocs, 1 frees, 1,033 bytes allocated
+==20207== 
+==20207== 9 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==20207==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==20207==    by 0x10922A: main (hello.c:8)
+==20207== 
+==20207== LEAK SUMMARY:
+==20207==    definitely lost: 9 bytes in 1 blocks
+==20207==    indirectly lost: 0 bytes in 0 blocks
+==20207==      possibly lost: 0 bytes in 0 blocks
+==20207==    still reachable: 0 bytes in 0 blocks
+==20207==         suppressed: 0 bytes in 0 blocks
+==20207== 
+==20207== Use --track-origins=yes to see where uninitialised values come from
+==20207== For lists of detected and suppressed errors, rerun with: -s
+==20207== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+
+
+
+ERRORS:
+
+
+1.
+
+==20083== Conditional jump or move depends on uninitialised value(s)
+==20083==    at 0x109234: main (hello.c:10)
+
+What it Means: 
+This error indicates that on line 10 of hello.c, your program is making a decision 
+(like an if statement or a loop) based on a variable that hasn't been initialized.
+Uninitialized variables contain whatever data happens to be in the memory location at the time, 
+leading to unpredictable behavior.
+
+Potential Causes: Common causes include:
+Using variables in a condition before they've been assigned a value.
+Forgetting to initialize variables before using them.
+
+How to Fix: 
+Review the code around line 10 in hello.c and ensure that 
+all variables used in conditions are properly initialized before they are used.
+
+
+
+2.
+
+==20083== 9 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==20083==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==20083==    by 0x10922A: main (hello.c:8)
+
+What it Means: 
+This error shows that your program allocated 9 bytes of memory on the heap using malloc on line 8 of hello.c,
+but this memory was not properly freed before the program exited. As a result, this memory is "lost," 
+meaning your program no longer has a pointer to it, and it cannot be freed, leading to a memory leak.
+
+Potential Causes:
+Allocating memory using malloc, calloc, or realloc without a corresponding free.
+Losing the reference to dynamically allocated memory (e.g., by overwriting the pointer).
+
+How to Fix: 
+Check the code around line 8 where malloc is called. 
+Ensure that every malloc has a corresponding free to release the allocated memory once it is no longer needed.

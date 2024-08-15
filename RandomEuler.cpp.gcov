@@ -1,0 +1,185 @@
+        -:    0:Source:RandomEuler.cpp
+        -:    0:Graph:RandomEuler.gcno
+        -:    0:Data:RandomEuler.gcda
+        -:    0:Runs:1
+        -:    1:#include <iostream>
+        -:    2:#include <vector>
+        -:    3:#include <stack>
+        -:    4:#include <limits>
+        -:    5:#include <cstdlib>
+        -:    6:#include <ctime>
+        -:    7:#include <unistd.h>
+        -:    8:#include <list>
+        -:    9:
+        -:   10:// Define a structure for the linked list nodes
+        -:   11:struct ListNode {
+        -:   12:    int vertex;
+        -:   13:    ListNode* next;
+        6:   14:    ListNode(int v) : vertex(v), next(nullptr) {}
+        -:   15:};
+        -:   16:
+        -:   17:// Define a structure for the adjacency list
+        -:   18:struct AdjList {
+        -:   19:    ListNode* head;
+        -:   20:    int degree; // Store the degree of the vertex
+        3:   21:    AdjList() : head(nullptr), degree(0) {}
+        -:   22:};
+        -:   23:
+        -:   24:// Function to add an edge to the adjacency list
+        3:   25:void addEdge(AdjList* adj, int u, int v) {
+        3:   26:    ListNode* newNode = new ListNode(v);
+        3:   27:    newNode->next = adj[u].head;
+        3:   28:    adj[u].head = newNode;
+        3:   29:    adj[u].degree++;
+        -:   30:
+        -:   31:    // Since it's an undirected graph, add the edge in both directions
+        3:   32:    newNode = new ListNode(u);
+        3:   33:    newNode->next = adj[v].head;
+        3:   34:    adj[v].head = newNode;
+        3:   35:    adj[v].degree++;
+        3:   36:}
+        -:   37:
+        -:   38:// Function to perform DFS to check connectivity
+        3:   39:void DFS(AdjList* adj, int v, std::vector<bool>& visited) {
+        3:   40:    visited[v] = true;
+        9:   41:    for (ListNode* node = adj[v].head; node != nullptr; node = node->next) {
+        6:   42:        if (!visited[node->vertex]) {
+        2:   43:            DFS(adj, node->vertex, visited);
+        -:   44:        }
+        -:   45:    }
+        3:   46:}
+        -:   47:
+        -:   48:// Function to check if all vertices with non-zero degree are connected
+        1:   49:bool isConnected(AdjList* adj, int n) {
+        1:   50:    std::vector<bool> visited(n, false);
+        1:   51:    int startVertex = -1;
+        -:   52:
+        -:   53:    // Find a vertex with non-zero degree to start DFS
+       1*:   54:    for (int i = 0; i < n; ++i) {
+        1:   55:        if (adj[i].degree > 0) {
+        1:   56:            startVertex = i;
+        1:   57:            break;
+        -:   58:        }
+        -:   59:    }
+        -:   60:
+        -:   61:    // If there are no edges in the graph, it is trivially connected
+        1:   62:    if (startVertex == -1) {
+    #####:   63:        return true;
+        -:   64:    }
+        -:   65:
+        -:   66:    // Perform DFS from the start vertex
+        1:   67:    DFS(adj, startVertex, visited);
+        -:   68:
+        -:   69:    // Check if all vertices with non-zero degree are visited
+        4:   70:    for (int i = 0; i < n; ++i) {
+       3*:   71:        if (adj[i].degree > 0 && !visited[i]) {
+    #####:   72:            return false;
+        -:   73:        }
+        -:   74:    }
+        -:   75:
+        1:   76:    return true;
+        1:   77:}
+        -:   78:
+        -:   79:
+        -:   80:
+        -:   81:// Function to check if an Eulerian cycle exists
+        1:   82:bool hasEulerianCycle(AdjList* adj, int n) {
+        -:   83:    // Check if all vertices with non-zero degree are connected
+        1:   84:    if (!isConnected(adj, n)) {
+    #####:   85:        std::cout << "The graph is not connected." << std::endl;
+    #####:   86:        return false;
+        -:   87:    }
+        -:   88:
+        -:   89:    // Check if every vertex has an even degree
+       1*:   90:    for (int i = 0; i < n; ++i) {
+        1:   91:        if (adj[i].degree % 2 != 0) {
+        1:   92:            std::cout << "Vertex " << i << " has an odd degree (" << adj[i].degree << ")." << std::endl;
+        1:   93:            return false;
+        -:   94:        }
+        -:   95:    }
+        -:   96:
+    #####:   97:    return true;
+        -:   98:}
+        -:   99:
+        -:  100:// Function to generate a random graph
+        1:  101:void generateRandomGraph(AdjList* adj, int n, int m, unsigned int seed) {
+        1:  102:    std::srand(seed);
+        4:  103:    for (int i = 0; i < m; ++i) {
+        3:  104:        int u = std::rand() % n;
+        3:  105:        int v = std::rand() % n;
+       10:  106:        while (v == u) { // Ensure u != v to avoid self-loops
+        7:  107:            v = std::rand() % n;
+        -:  108:        }
+        3:  109:        addEdge(adj, u, v);
+        -:  110:    }
+        1:  111:}
+        -:  112:
+        1:  113:int main(int argc, char* argv[]) {
+        1:  114:    int n = 0; // vertices
+        1:  115:    int m = 0; // edges
+        1:  116:    unsigned int seed = static_cast<unsigned int>(std::time(0)); // random seed
+        -:  117:
+        -:  118:    int opt;
+        4:  119:    while ((opt = getopt(argc, argv, "n:m:s:")) != -1) {
+        3:  120:        switch (opt) {
+        1:  121:        case 'n':
+        1:  122:            n = std::atoi(optarg);
+        1:  123:            break;
+        1:  124:        case 'm':
+        1:  125:            m = std::atoi(optarg);
+        1:  126:            break;
+        1:  127:        case 's':
+        1:  128:            seed = static_cast<unsigned int>(std::atoi(optarg));
+        1:  129:            break;
+    #####:  130:        default:
+    #####:  131:            std::cerr << "Usage: " << argv[0] << " -n <vertices> -m <edges> -s <seed>" << std::endl;
+    #####:  132:            return 1;
+        -:  133:        }
+        -:  134:    }
+        -:  135:
+        1:  136:    if (n <= 0 || m < 0) {
+    #####:  137:        std::cerr << "Invalid input. Number of vertices must be positive, and number of edges must be non-negative." << std::endl;
+    #####:  138:        return 1;
+        -:  139:    }
+        -:  140:
+       4*:  141:    AdjList* adj = new AdjList[n];
+        -:  142:
+        -:  143:    // Generate a random graph
+        1:  144:    generateRandomGraph(adj, n, m, seed);
+        -:  145:    // Check for Eulerian Cycle
+        1:  146:    if (hasEulerianCycle(adj, n)) {
+    #####:  147:        std::cout << "The graph has an Eulerian cycle." << std::endl;
+        -:  148:        // Print the edges of the graph
+        -:  149:        
+        -:  150:    } else {
+        1:  151:        std::cout << "The graph does not have an Eulerian cycle." << std::endl;
+        -:  152:    }
+        1:  153:    std::cout << "Edges of the graph:" << std::endl;
+        4:  154:        for (int i = 0; i < n; ++i) {
+        9:  155:            for (ListNode* node = adj[i].head; node != nullptr; node = node->next) {
+        6:  156:                if (i < node->vertex) { // To avoid printing duplicate edges
+        3:  157:                    std::cout << "(" << i << ", " << node->vertex << ")" << std::endl;
+        -:  158:                }
+        -:  159:            }
+        -:  160:        }
+        -:  161:    // Print the degrees of the vertices
+        1:  162:    std::cout << "Vertex degrees:" << std::endl;
+        4:  163:    for (int i = 0; i < n; ++i) {
+        3:  164:        std::cout << "Vertex " << i << ": " << adj[i].degree << std::endl;
+        -:  165:    }
+        -:  166:
+        -:  167:    
+        -:  168:
+        -:  169:    // Clean up the allocated memory for the adjacency list
+        4:  170:    for (int i = 0; i < n; ++i) {
+        3:  171:        ListNode* current = adj[i].head;
+        9:  172:        while (current != nullptr) {
+        6:  173:            ListNode* next = current->next;
+        6:  174:            delete current;
+        6:  175:            current = next;
+        -:  176:        }
+        -:  177:    }
+        1:  178:    delete[] adj;
+        -:  179:
+        1:  180:    return 0;
+        -:  181:}
