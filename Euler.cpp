@@ -72,21 +72,71 @@ bool isConnected(AdjList* adj, int n) {
     return true;
 }
 
-// Function to check if an Eulerian cycle exists
-bool hasEulerianCycle(AdjList* adj, int n) {
+// Function to find an Eulerian cycle using Hierholzer's algorithm
+void findEulerianCycle(AdjList* adj, int n, int start) {
+    std::stack<int> currPath;
+    std::vector<int> eulerianCycle;
+
+    currPath.push(start);
+    int currVertex = start;
+
+    while (!currPath.empty()) {
+        if (adj[currVertex].head != nullptr) {
+            // Move to the next vertex in the adjacency list and remove the edge
+            currPath.push(currVertex);
+            int nextVertex = adj[currVertex].head->vertex;
+
+            // Remove the edge
+            ListNode* temp = adj[currVertex].head;
+            adj[currVertex].head = adj[currVertex].head->next;
+            delete temp;
+
+            // Since it's an undirected graph, remove the reverse edge as well
+            ListNode** adjListPtr = &adj[nextVertex].head;
+            while (*adjListPtr && (*adjListPtr)->vertex != currVertex) {
+                adjListPtr = &(*adjListPtr)->next;
+            }
+            if (*adjListPtr) {
+                ListNode* tempRev = *adjListPtr;
+                *adjListPtr = (*adjListPtr)->next;
+                delete tempRev;
+            }
+
+            currVertex = nextVertex;
+        } else {
+            // Backtrack
+            eulerianCycle.push_back(currVertex);
+            currVertex = currPath.top();
+            currPath.pop();
+        }
+    }
+
+    // Print the Eulerian cycle
+    std::cout << "Eulerian cycle: ";
+    for (size_t i = 0; i < eulerianCycle.size(); ++i) {
+        std::cout << eulerianCycle[i];
+        if (i < eulerianCycle.size() - 1) {
+            std::cout << " -> ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+// Function to check if an Eulerian cycle exists and explain why it doesn't if applicable
+std::string hasEulerianCycle(AdjList* adj, int n) {
     // Check if all vertices with non-zero degree are connected
     if (!isConnected(adj, n)) {
-        return false;
+        return "The graph is not connected.";
     }
 
     // Check if every vertex has an even degree
     for (int i = 0; i < n; ++i) {
         if (adj[i].degree % 2 != 0) {
-            return false;
+            return "Vertex " + std::to_string(i) + " has an odd degree.";
         }
     }
 
-    return true;
+    return "The graph has an Eulerian cycle.";
 }
 
 int main() {
@@ -94,7 +144,7 @@ int main() {
     int m; // edges
 
     std::cout << "Enter number of vertices and edges: " << std::endl;
-    while (true) {
+    while (true) { 
         std::cin >> n >> m;
         if (std::cin.fail() || n < 0 || m < 0) {
             std::cin.clear(); // clear the error flag
@@ -123,10 +173,18 @@ int main() {
     }
 
     // Check for Eulerian Cycle
-    if (hasEulerianCycle(adj, n)) {
-        std::cout << "The graph has an Eulerian cycle." << std::endl;
-    } else {
-        std::cout << "The graph does not have an Eulerian cycle." << std::endl;
+    std::string result = hasEulerianCycle(adj, n);
+    std::cout << result << std::endl;
+
+    // If the graph has an Eulerian cycle, find and print it
+    if (result == "The graph has an Eulerian cycle.") {
+        // Find and print the Eulerian cycle starting from any vertex with edges
+        for (int i = 0; i < n; ++i) {
+            if (adj[i].head != nullptr) {
+                findEulerianCycle(adj, n, i);
+                break;
+            }
+        }
     }
 
     delete[] adj; // Clean up the allocated memory for the adjacency list

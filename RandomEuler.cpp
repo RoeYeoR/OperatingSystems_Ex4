@@ -110,28 +110,16 @@ void generateRandomGraph(AdjList* adj, int n, int m, unsigned int seed) {
     }
 }
 
-int main(int argc, char* argv[]) {
-    int n = 0; // vertices
-    int m = 0; // edges
-    unsigned int seed = static_cast<unsigned int>(std::time(0)); // random seed
 
-    int opt;
-    while ((opt = getopt(argc, argv, "n:m:s:")) != -1) {
-        switch (opt) {
-        case 'n':
-            n = std::atoi(optarg);
-            break;
-        case 'm':
-            m = std::atoi(optarg);
-            break;
-        case 's':
-            seed = static_cast<unsigned int>(std::atoi(optarg));
-            break;
-        default:
-            std::cerr << "Usage: " << argv[0] << " -n <vertices> -m <edges> -s <seed>" << std::endl;
-            return 1;
-        }
+int main(int argc, char* argv[]) {
+    if (argc < 4) {
+        std::cerr << "Usage: " << argv[0] << " <vertices> <edges> <seed>" << std::endl;
+        return 1;
     }
+
+    int n = std::atoi(argv[1]); // vertices
+    int m = std::atoi(argv[2]); // edges
+    unsigned int seed = static_cast<unsigned int>(std::atoi(argv[3])); // seed
 
     if (n <= 0 || m < 0) {
         std::cerr << "Invalid input. Number of vertices must be positive, and number of edges must be non-negative." << std::endl;
@@ -142,29 +130,29 @@ int main(int argc, char* argv[]) {
 
     // Generate a random graph
     generateRandomGraph(adj, n, m, seed);
+
     // Check for Eulerian Cycle
     if (hasEulerianCycle(adj, n)) {
         std::cout << "The graph has an Eulerian cycle." << std::endl;
-        // Print the edges of the graph
-        
     } else {
         std::cout << "The graph does not have an Eulerian cycle." << std::endl;
     }
+
+    // Print the edges of the graph
     std::cout << "Edges of the graph:" << std::endl;
-        for (int i = 0; i < n; ++i) {
-            for (ListNode* node = adj[i].head; node != nullptr; node = node->next) {
-                if (i < node->vertex) { // To avoid printing duplicate edges
-                    std::cout << "(" << i << ", " << node->vertex << ")" << std::endl;
-                }
+    for (int i = 0; i < n; ++i) {
+        for (ListNode* node = adj[i].head; node != nullptr; node = node->next) {
+            if (i < node->vertex) { // To avoid printing duplicate edges
+                std::cout << "(" << i << ", " << node->vertex << ")" << std::endl;
             }
         }
+    }
+
     // Print the degrees of the vertices
     std::cout << "Vertex degrees:" << std::endl;
     for (int i = 0; i < n; ++i) {
         std::cout << "Vertex " << i << ": " << adj[i].degree << std::endl;
     }
-
-    
 
     // Clean up the allocated memory for the adjacency list
     for (int i = 0; i < n; ++i) {
@@ -179,3 +167,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+

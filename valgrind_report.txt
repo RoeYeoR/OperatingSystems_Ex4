@@ -1,0 +1,28 @@
+==8362== Memcheck, a memory error detector
+==8362== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==8362== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==8362== Command: ./hello 1 2 3
+==8362== 
+==8362== Conditional jump or move depends on uninitialised value(s)
+==8362==    at 0x109234: main (hello.c:10)
+==8362== 
+You entered: ./hello 1 2 3
+==8362== 
+==8362== HEAP SUMMARY:
+==8362==     in use at exit: 48 bytes in 4 blocks
+==8362==   total heap usage: 5 allocs, 1 frees, 4,144 bytes allocated
+==8362== 
+==8362== 48 bytes in 4 blocks are definitely lost in loss record 1 of 1
+==8362==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==8362==    by 0x10922A: main (hello.c:8)
+==8362== 
+==8362== LEAK SUMMARY:
+==8362==    definitely lost: 48 bytes in 4 blocks
+==8362==    indirectly lost: 0 bytes in 0 blocks
+==8362==      possibly lost: 0 bytes in 0 blocks
+==8362==    still reachable: 0 bytes in 0 blocks
+==8362==         suppressed: 0 bytes in 0 blocks
+==8362== 
+==8362== Use --track-origins=yes to see where uninitialised values come from
+==8362== For lists of detected and suppressed errors, rerun with: -s
+==8362== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
